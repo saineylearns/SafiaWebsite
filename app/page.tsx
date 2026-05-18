@@ -5,16 +5,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Home() {
-  const [scrolled, setScrolled] = useState(false);
   const [showreel, setShowreel] = useState(false);
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', message: '' });
   const [sent, setSent] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   useEffect(() => {
     document.body.style.overflow = showreel ? 'hidden' : '';
@@ -49,38 +42,14 @@ export default function Home() {
 
   return (
     <>
-      <style>{`
-        @keyframes heroUp  { from { opacity: 0; transform: translateY(24px) } to { opacity: 1; transform: translateY(0) } }
-
-        .hero-name {
-          animation: heroUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.1s both;
-        }
-        .hero-sub {
-          animation: heroUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.25s both;
-        }
-        .hero-bar {
-          animation: heroUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.38s both;
-        }
-
-        .work-cta {
-          display: inline-flex; align-items: center; gap: 10px;
-          font-size: 13px; font-weight: 700; letter-spacing: 0.12em;
-          text-transform: uppercase; color: var(--color-foreground);
-          border-bottom: 1.5px solid currentColor; padding-bottom: 2px;
-          transition: opacity 0.2s;
-        }
-        .work-cta:hover { opacity: 0.5; }
-      `}</style>
-
       {/* ── Header ──────────────────────────────────────────── */}
       <header className="header-inner" style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        background: scrolled ? 'rgba(255,255,255,0.95)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(12px)' : 'none',
-        borderBottom: scrolled ? '1px solid var(--color-border)' : 'none',
+        background: 'rgba(255,255,255,0.95)',
+        backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid var(--color-border)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '0 40px', height: 'var(--header-height)',
-        transition: 'background 0.3s ease, border-color 0.3s ease',
       }}>
         <Link href="/" style={{
           fontSize: 16, fontWeight: 900, letterSpacing: '0.14em',
@@ -107,85 +76,22 @@ export default function Home() {
           ))}
         </nav>
 
-        <a href="https://www.instagram.com/safia.touray/" target="_blank" rel="noreferrer" className="ig-btn">
-          ↗ Instagram
-        </a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <button
+            onClick={() => setShowreel(true)}
+            className="ig-btn"
+            style={{ fontSize: 11, padding: '6px 14px', background: 'none' }}
+          >
+            ▶ Showreel
+          </button>
+          <a href="https://www.instagram.com/safia.touray/" target="_blank" rel="noreferrer" className="ig-btn">
+            ↗ Instagram
+          </a>
+        </div>
       </header>
 
-      {/* ── Hero ────────────────────────────────────────────── */}
-      <section style={{
-        minHeight: '100vh',
-        display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-        padding: '0 40px 52px',
-        position: 'relative',
-      }}>
-        {/* top label */}
-        <p style={{
-          position: 'absolute', top: 'calc(var(--header-height) + 28px)', left: 40,
-          fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase',
-          color: 'var(--color-neutral-5)', fontWeight: 500,
-          animation: 'fadeIn 1s ease 0.5s both',
-        }}>
-          Film Photography · Manchester
-        </p>
-
-        {/* name */}
-        <h1 className="hero-name" style={{
-          fontFamily: "'Roboto Condensed', sans-serif",
-          fontWeight: 900,
-          fontSize: 'clamp(72px, 14.5vw, 220px)',
-          letterSpacing: '-0.02em',
-          textTransform: 'uppercase',
-          lineHeight: 0.88,
-          marginBottom: 32,
-        }}>
-          Safia<br />Touray
-        </h1>
-
-        {/* bottom bar */}
-        <div className="hero-bar" style={{
-          borderTop: '1px solid var(--color-border)',
-          paddingTop: 20,
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          flexWrap: 'wrap', gap: 16,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{
-              display: 'inline-block', width: 7, height: 7, borderRadius: '50%',
-              background: '#22c55e', boxShadow: '0 0 0 3px rgba(34,197,94,0.22)',
-            }} />
-            <span style={{
-              fontSize: 11, fontWeight: 700, letterSpacing: '0.18em',
-              textTransform: 'uppercase', color: '#22c55e',
-            }}>
-              Available for projects
-            </span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
-            <button
-              onClick={() => setShowreel(true)}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 10,
-                fontSize: 13, fontWeight: 700, letterSpacing: '0.12em',
-                textTransform: 'uppercase', color: 'var(--color-foreground)',
-                background: 'none', border: 'none', padding: 0, cursor: 'pointer',
-                borderBottom: '1.5px solid currentColor', paddingBottom: 2,
-                transition: 'opacity 0.2s',
-              }}
-              onMouseEnter={e => (e.currentTarget.style.opacity = '0.5')}
-              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-            >
-              ▶ Showreel
-            </button>
-            <Link href="/work" className="work-cta">
-              View Work →
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* ── Featured image ──────────────────────────────────── */}
-      <section style={{ padding: '0 40px 0', display: 'flex', justifyContent: 'center' }}>
+      <section style={{ paddingTop: 'var(--header-height)', padding: `calc(var(--header-height) + 40px) 40px 0`, display: 'flex', justifyContent: 'center' }}>
         <div style={{
           position: 'relative',
           width: '100%',
