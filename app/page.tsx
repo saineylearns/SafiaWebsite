@@ -1,195 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
-/* ─── images ──────────────────────────────────────────────────────── */
-const GRID_IMAGES = [
-  { src: '/images/series-2/01.jpg', col: 1, row: 1, colSpan: 1, rowSpan: 2 },
-  { src: '/images/series-1/01.jpg', col: 2, row: 1, colSpan: 1, rowSpan: 1 },
-  { src: '/images/series-3/01.jpg', col: 3, row: 1, colSpan: 1, rowSpan: 1 },
-  { src: '/images/series-1/02.jpg', col: 2, row: 2, colSpan: 1, rowSpan: 1 },
-  { src: '/images/series-3/02.jpg', col: 3, row: 2, colSpan: 1, rowSpan: 1 },
-  { src: '/images/series-2/02.jpg', col: 1, row: 3, colSpan: 1, rowSpan: 1 },
-  { src: '/images/series-2/03.jpg', col: 2, row: 3, colSpan: 1, rowSpan: 2 },
-  { src: '/images/series-3/03.jpg', col: 3, row: 3, colSpan: 1, rowSpan: 1 },
-  { src: '/images/series-2/04.jpg', col: 1, row: 4, colSpan: 1, rowSpan: 1 },
-  { src: '/images/series-3/04.jpg', col: 3, row: 4, colSpan: 1, rowSpan: 1 },
-  { src: '/images/series-2/05.jpg', col: 1, row: 5, colSpan: 3, rowSpan: 1 },
-];
-
-const ALL_SRCS = GRID_IMAGES.map(i => i.src);
-const NAV_LINKS = ['Work', 'About', 'Contact'];
 const MARQUEE_WORDS = ['Portrait', 'Editorial', 'Documentary'];
 
-/* ─── lightbox ────────────────────────────────────────────────────── */
-function Lightbox({ index, onClose, onPrev, onNext }: {
-  index: number;
-  onClose: () => void;
-  onPrev: () => void;
-  onNext: () => void;
-}) {
-  const total = ALL_SRCS.length;
-  const touchStartX = useRef<number | null>(null);
-
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = ''; };
-  }, []);
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-      if (e.key === 'ArrowRight') onNext();
-      if (e.key === 'ArrowLeft') onPrev();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose, onNext, onPrev]);
-
-  return (
-    <div
-      style={{
-        position: 'fixed', inset: 0, zIndex: 1000,
-        background: 'rgba(0,0,0,0.96)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        animation: 'fadeIn 0.2s ease',
-      }}
-      onClick={onClose}
-      onTouchStart={e => { touchStartX.current = e.touches[0].clientX; }}
-      onTouchEnd={e => {
-        if (touchStartX.current === null) return;
-        const dx = e.changedTouches[0].clientX - touchStartX.current;
-        if (Math.abs(dx) < 10) { onClose(); return; }
-        if (dx < -60) onNext();
-        if (dx > 60) onPrev();
-        touchStartX.current = null;
-      }}
-    >
-      {/* close — large tap target */}
-      <button
-        onClick={e => { e.stopPropagation(); onClose(); }}
-        onTouchEnd={e => { e.stopPropagation(); e.preventDefault(); onClose(); }}
-        style={{
-          position: 'absolute', top: 0, right: 0,
-          width: 64, height: 64,
-          background: 'none', border: 'none', cursor: 'pointer',
-          color: '#fff', fontSize: 28, lineHeight: 1,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          opacity: 0.8, transition: 'opacity 0.15s',
-          WebkitTapHighlightColor: 'transparent',
-          zIndex: 10,
-        }}
-        onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
-        onMouseLeave={e => (e.currentTarget.style.opacity = '0.8')}
-        aria-label="Close"
-      >
-        ×
-      </button>
-
-      {/* counter */}
-      <span style={{
-        position: 'absolute', top: 22, left: 20,
-        color: 'rgba(255,255,255,0.45)',
-        fontSize: 12, letterSpacing: '0.15em',
-        fontFamily: 'var(--font-sans)', fontWeight: 500,
-        pointerEvents: 'none',
-      }}>
-        {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
-      </span>
-
-      {/* prev */}
-      <button
-        onClick={e => { e.stopPropagation(); onPrev(); }}
-        style={{
-          position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)',
-          background: 'none', border: 'none', cursor: 'pointer',
-          color: '#fff', fontSize: 22,
-          width: 56, height: 80,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          opacity: 0.5, transition: 'opacity 0.15s',
-          WebkitTapHighlightColor: 'transparent',
-        }}
-        onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
-        onMouseLeave={e => (e.currentTarget.style.opacity = '0.5')}
-        aria-label="Previous"
-      >
-        ←
-      </button>
-
-      {/* next */}
-      <button
-        onClick={e => { e.stopPropagation(); onNext(); }}
-        style={{
-          position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)',
-          background: 'none', border: 'none', cursor: 'pointer',
-          color: '#fff', fontSize: 22,
-          width: 56, height: 80,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          opacity: 0.5, transition: 'opacity 0.15s',
-          WebkitTapHighlightColor: 'transparent',
-        }}
-        onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
-        onMouseLeave={e => (e.currentTarget.style.opacity = '0.5')}
-        aria-label="Next"
-      >
-        →
-      </button>
-
-      {/* image */}
-      <div
-        style={{ position: 'relative', maxWidth: '90vw', maxHeight: '90vh', width: '100%', height: '100%' }}
-        onClick={e => e.stopPropagation()}
-        onTouchEnd={e => e.stopPropagation()}
-      >
-        <Image
-          key={ALL_SRCS[index]}
-          src={ALL_SRCS[index]}
-          alt=""
-          fill
-          sizes="90vw"
-          style={{ objectFit: 'contain' }}
-          priority
-        />
-      </div>
-    </div>
-  );
-}
-
-/* ─── grid image cell ─────────────────────────────────────────────── */
-function ImgCell({ src, style, className, onClick }: {
-  src: string;
-  style: React.CSSProperties;
-  className?: string;
-  onClick: () => void;
-}) {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <div
-      className={className}
-      style={{ ...style, overflow: 'hidden', cursor: 'crosshair', position: 'relative' }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onClick={onClick}
-    >
-      <Image
-        src={src}
-        alt=""
-        fill
-        sizes="(max-width: 640px) 50vw, (max-width: 768px) 50vw, 33vw"
-        style={{
-          objectFit: 'cover',
-          transition: 'transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94)',
-          transform: hovered ? 'scale(1.04)' : 'scale(1)',
-        }}
-      />
-    </div>
-  );
-}
-
-/* ─── page ────────────────────────────────────────────────────────── */
 export default function Home() {
-  const [lightbox, setLightbox] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', message: '' });
   const [sent, setSent] = useState(false);
@@ -199,11 +16,6 @@ export default function Home() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-
-  const openLightbox = useCallback((i: number) => setLightbox(i), []);
-  const closeLightbox = useCallback(() => setLightbox(null), []);
-  const prevImage = useCallback(() => setLightbox(i => i === null ? null : (i - 1 + ALL_SRCS.length) % ALL_SRCS.length), []);
-  const nextImage = useCallback(() => setLightbox(i => i === null ? null : (i + 1) % ALL_SRCS.length), []);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -228,150 +40,146 @@ export default function Home() {
   return (
     <>
       <style>{`
-        @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-        @keyframes marquee {
-          from { transform: translateX(0) }
-          to { transform: translateX(-50%) }
-        }
-        .nav-link { position: relative; }
-        .nav-link::after {
-          content: '';
-          position: absolute;
-          bottom: -2px; left: 0;
-          width: 0; height: 1px;
-          background: currentColor;
-          transition: width 0.25s ease;
-        }
-        .nav-link:hover::after { width: 100%; }
-        .ig-btn {
-          display: inline-flex; align-items: center; gap: 6px;
-          padding: 8px 18px;
-          border: 1.5px solid #000;
-          border-radius: 100px;
-          font-size: 12px; font-weight: 700;
-          letter-spacing: 0.1em; text-transform: uppercase;
-          color: #000; background: transparent;
-          transition: background 0.18s ease, color 0.18s ease;
-          white-space: nowrap;
-        }
-        .ig-btn:hover { background: #000; color: #fff; }
+        @keyframes heroUp  { from { opacity: 0; transform: translateY(24px) } to { opacity: 1; transform: translateY(0) } }
 
+        .hero-name {
+          animation: heroUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.1s both;
+        }
+        .hero-sub {
+          animation: heroUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.25s both;
+        }
+        .hero-bar {
+          animation: heroUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.38s both;
+        }
+
+        .work-cta {
+          display: inline-flex; align-items: center; gap: 10px;
+          font-size: 13px; font-weight: 700; letter-spacing: 0.12em;
+          text-transform: uppercase; color: var(--color-foreground);
+          border-bottom: 1.5px solid currentColor; padding-bottom: 2px;
+          transition: opacity 0.2s;
+        }
+        .work-cta:hover { opacity: 0.5; }
       `}</style>
 
-      {lightbox !== null && (
-        <Lightbox index={lightbox} onClose={closeLightbox} onPrev={prevImage} onNext={nextImage} />
-      )}
-
       {/* ── Header ──────────────────────────────────────────── */}
-      <header
-        className="header-inner"
-        style={{
-          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-          background: scrolled ? 'rgba(255,255,255,0.95)' : '#fff',
-          backdropFilter: scrolled ? 'blur(12px)' : 'none',
-          borderBottom: '1px solid var(--color-border)',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0 40px', height: 'var(--header-height)',
-          transition: 'background 0.3s ease, backdrop-filter 0.3s ease',
-        }}
-      >
-        <a href="#" style={{
-          fontSize: 16, fontWeight: 900,
-          letterSpacing: '0.14em', textTransform: 'uppercase',
-          fontFamily: "'Roboto Condensed', sans-serif",
+      <header className="header-inner" style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+        background: scrolled ? 'rgba(255,255,255,0.95)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(12px)' : 'none',
+        borderBottom: scrolled ? '1px solid var(--color-border)' : 'none',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 40px', height: 'var(--header-height)',
+        transition: 'background 0.3s ease, border-color 0.3s ease',
+      }}>
+        <Link href="/" style={{
+          fontSize: 16, fontWeight: 900, letterSpacing: '0.14em',
+          textTransform: 'uppercase', fontFamily: "'Roboto Condensed', sans-serif",
           color: 'var(--color-foreground)',
         }}>
           Safia Touray
-        </a>
+        </Link>
 
         <nav className="header-nav" style={{ display: 'flex', gap: 40 }}>
-          {NAV_LINKS.map(link => (
-            <a
-              key={link}
-              href={`#${link.toLowerCase()}`}
-              className="nav-link"
-              style={{
-                fontSize: 13, fontWeight: 500,
-                letterSpacing: '0.08em', textTransform: 'uppercase',
-                color: 'var(--color-neutral-4)', transition: 'color 0.15s',
-              }}
+          {[
+            { label: 'Work', href: '/work' },
+            { label: 'About', href: '#about' },
+            { label: 'Contact', href: '#contact' },
+          ].map(link => (
+            <a key={link.label} href={link.href} className="nav-link" style={{
+              fontSize: 13, fontWeight: 500, letterSpacing: '0.08em',
+              textTransform: 'uppercase', color: 'var(--color-neutral-4)', transition: 'color 0.15s',
+            }}
               onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-foreground)')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-neutral-4)')}
-            >
-              {link}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-neutral-4)')}>
+              {link.label}
             </a>
           ))}
         </nav>
 
-        <a
-          href="https://www.instagram.com/safia.touray/"
-          target="_blank" rel="noreferrer"
-          className="ig-btn"
-        >
+        <a href="https://www.instagram.com/safia.touray/" target="_blank" rel="noreferrer" className="ig-btn">
           ↗ Instagram
         </a>
       </header>
 
-      {/* ── Hero grid ───────────────────────────────────────── */}
-      <section id="work" style={{ marginTop: 'var(--header-height)' }}>
-        <div
-          className="hero-grid"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gridTemplateRows: 'repeat(5, 340px)',
-            gap: 8,
-          }}
-        >
-          {GRID_IMAGES.map((img, i) => (
-            <ImgCell
-              key={i}
-              src={img.src}
-              onClick={() => openLightbox(i)}
-              className={img.colSpan === 3 ? 'hero-cell hero-cell-wide' : 'hero-cell'}
-              style={{
-                gridColumn: `${img.col} / span ${img.colSpan}`,
-                gridRow: `${img.row} / span ${img.rowSpan}`,
-              }}
-            />
-          ))}
+      {/* ── Hero ────────────────────────────────────────────── */}
+      <section style={{
+        minHeight: '100vh',
+        display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+        padding: '0 40px 52px',
+        position: 'relative',
+      }}>
+        {/* top label */}
+        <p style={{
+          position: 'absolute', top: 'calc(var(--header-height) + 28px)', left: 40,
+          fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase',
+          color: 'var(--color-neutral-5)', fontWeight: 500,
+          animation: 'fadeIn 1s ease 0.5s both',
+        }}>
+          Film Photography · Manchester
+        </p>
+
+        {/* name */}
+        <h1 className="hero-name" style={{
+          fontFamily: "'Roboto Condensed', sans-serif",
+          fontWeight: 900,
+          fontSize: 'clamp(72px, 14.5vw, 220px)',
+          letterSpacing: '-0.02em',
+          textTransform: 'uppercase',
+          lineHeight: 0.88,
+          marginBottom: 32,
+        }}>
+          Safia<br />Touray
+        </h1>
+
+        {/* bottom bar */}
+        <div className="hero-bar" style={{
+          borderTop: '1px solid var(--color-border)',
+          paddingTop: 20,
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          flexWrap: 'wrap', gap: 16,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{
+              display: 'inline-block', width: 7, height: 7, borderRadius: '50%',
+              background: '#22c55e', boxShadow: '0 0 0 3px rgba(34,197,94,0.22)',
+            }} />
+            <span style={{
+              fontSize: 11, fontWeight: 700, letterSpacing: '0.18em',
+              textTransform: 'uppercase', color: '#22c55e',
+            }}>
+              Available for projects
+            </span>
+          </div>
+          <Link href="/work" className="work-cta">
+            View Work →
+          </Link>
         </div>
       </section>
 
+      {/* ── Featured image ──────────────────────────────────── */}
+      <section style={{ width: '100%', height: '80vh', position: 'relative' }}>
+        <Image
+          src="/images/series-1/01.jpg"
+          alt=""
+          fill
+          sizes="100vw"
+          style={{ objectFit: 'cover', objectPosition: 'center 20%' }}
+          priority
+        />
+      </section>
+
       {/* ── Scrolling marquee ───────────────────────────────── */}
-      <section
-        style={{
-          background: '#0a0a0a',
-          overflow: 'hidden',
-          padding: '28px 0',
-          cursor: 'default',
-          userSelect: 'none',
-        }}
-      >
-        <div style={{
-          display: 'inline-block',
-          whiteSpace: 'nowrap',
-          animation: `marquee 45s linear infinite`,
-        }}>
+      <section style={{ background: '#0a0a0a', overflow: 'hidden', padding: '28px 0', userSelect: 'none' }}>
+        <div style={{ display: 'inline-block', whiteSpace: 'nowrap', animation: 'marquee 45s linear infinite' }}>
           {[0, 1].map(n => (
             <span key={n} style={{ fontFamily: "'Roboto Condensed', sans-serif" }}>
               {Array.from({ length: 6 }).map((_, i) => (
                 <span key={i}>
                   {MARQUEE_WORDS.map((word, j) => (
                     <span key={j}>
-                      <span style={{
-                        fontWeight: 900,
-                        fontSize: 'clamp(22px, 3vw, 36px)',
-                        letterSpacing: '0.18em',
-                        textTransform: 'uppercase',
-                        color: '#fff',
-                      }}>{word}</span>
-                      <span style={{
-                        fontWeight: 900,
-                        fontSize: 'clamp(22px, 3vw, 36px)',
-                        color: '#c9924a',
-                        margin: '0 0.45em',
-                      }}>·</span>
+                      <span style={{ fontWeight: 900, fontSize: 'clamp(22px, 3vw, 36px)', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#fff' }}>{word}</span>
+                      <span style={{ fontWeight: 900, fontSize: 'clamp(22px, 3vw, 36px)', color: '#c9924a', margin: '0 0.45em' }}>·</span>
                     </span>
                   ))}
                 </span>
@@ -401,19 +209,6 @@ export default function Home() {
           </div>
 
           <div className="about-grid-right" style={{ paddingTop: 36 }}>
-            <div style={{ marginBottom: 40, display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{
-                display: 'inline-block', width: 8, height: 8, borderRadius: '50%',
-                background: '#22c55e', boxShadow: '0 0 0 3px rgba(34,197,94,0.22)',
-              }} />
-              <span style={{
-                fontSize: 12, fontWeight: 700, letterSpacing: '0.18em',
-                textTransform: 'uppercase', color: '#22c55e',
-              }}>
-                Currently available
-              </span>
-            </div>
-
             <div style={{ marginBottom: 40 }}>
               <p style={{ fontSize: 12, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--color-neutral-5)', marginBottom: 16, fontWeight: 500 }}>Based in</p>
               <p style={{ fontSize: 21, fontWeight: 600 }}>Manchester, UK</p>
@@ -424,18 +219,14 @@ export default function Home() {
                 Film Photography<br />Portraiture<br />Editorial<br />Documentary
               </p>
             </div>
-            <a
-              href="#contact"
-              style={{
-                display: 'inline-block', padding: '14px 32px',
-                background: 'var(--color-foreground)', color: 'var(--color-background)',
-                fontSize: 13, fontWeight: 600, letterSpacing: '0.1em',
-                textTransform: 'uppercase', borderRadius: 'var(--radius-xs)',
-                transition: 'opacity 0.2s',
-              }}
+            <a href="#contact" style={{
+              display: 'inline-block', padding: '14px 32px',
+              background: 'var(--color-foreground)', color: 'var(--color-background)',
+              fontSize: 13, fontWeight: 600, letterSpacing: '0.1em',
+              textTransform: 'uppercase', borderRadius: 'var(--radius-xs)', transition: 'opacity 0.2s',
+            }}
               onMouseEnter={e => (e.currentTarget.style.opacity = '0.75')}
-              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-            >
+              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}>
               Get in touch
             </a>
           </div>
@@ -443,31 +234,16 @@ export default function Home() {
       </section>
 
       {/* ── Manifesto ───────────────────────────────────────── */}
-      <section className="manifesto-section" style={{
-        background: '#0a0a0a',
-        padding: '100px 40px',
-        textAlign: 'center',
-      }}>
+      <section className="manifesto-section" style={{ background: '#0a0a0a', padding: '100px 40px', textAlign: 'center' }}>
         <p style={{
-          fontFamily: "'Roboto Condensed', sans-serif",
-          fontWeight: 900,
-          fontSize: 'clamp(28px, 5vw, 64px)',
-          letterSpacing: '0.04em',
-          textTransform: 'uppercase',
-          color: '#fff',
-          lineHeight: 1.15,
-          maxWidth: 900,
-          margin: '0 auto 24px',
+          fontFamily: "'Roboto Condensed', sans-serif", fontWeight: 900,
+          fontSize: 'clamp(28px, 5vw, 64px)', letterSpacing: '0.04em',
+          textTransform: 'uppercase', color: '#fff', lineHeight: 1.15,
+          maxWidth: 900, margin: '0 auto 24px',
         }}>
           I shoot on film.<br />Every frame is intentional.
         </p>
-        <p style={{
-          fontSize: 15,
-          color: 'rgba(255,255,255,0.4)',
-          letterSpacing: '0.15em',
-          textTransform: 'uppercase',
-          fontWeight: 500,
-        }}>
+        <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 500 }}>
           No shortcuts. No filters. Just the moment.
         </p>
       </section>
@@ -492,61 +268,43 @@ export default function Home() {
             <div className="contact-name-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div>
                 <label style={labelStyle}>First name</label>
-                <input
-                  type="text" required placeholder="Your first name"
-                  value={form.firstName}
-                  onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))}
-                  style={inputStyle}
+                <input type="text" required placeholder="Your first name" value={form.firstName}
+                  onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))} style={inputStyle}
                   onFocus={e => (e.target.style.borderColor = 'var(--color-foreground)')}
-                  onBlur={e => (e.target.style.borderColor = '#e0e0e0')}
-                />
+                  onBlur={e => (e.target.style.borderColor = '#e0e0e0')} />
               </div>
               <div>
                 <label style={labelStyle}>Last name</label>
-                <input
-                  type="text" required placeholder="Your last name"
-                  value={form.lastName}
-                  onChange={e => setForm(f => ({ ...f, lastName: e.target.value }))}
-                  style={inputStyle}
+                <input type="text" required placeholder="Your last name" value={form.lastName}
+                  onChange={e => setForm(f => ({ ...f, lastName: e.target.value }))} style={inputStyle}
                   onFocus={e => (e.target.style.borderColor = 'var(--color-foreground)')}
-                  onBlur={e => (e.target.style.borderColor = '#e0e0e0')}
-                />
+                  onBlur={e => (e.target.style.borderColor = '#e0e0e0')} />
               </div>
             </div>
             <div>
               <label style={labelStyle}>Email</label>
-              <input
-                type="email" required placeholder="your@email.com"
-                value={form.email}
-                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                style={inputStyle}
+              <input type="email" required placeholder="your@email.com" value={form.email}
+                onChange={e => setForm(f => ({ ...f, email: e.target.value }))} style={inputStyle}
                 onFocus={e => (e.target.style.borderColor = 'var(--color-foreground)')}
-                onBlur={e => (e.target.style.borderColor = '#e0e0e0')}
-              />
+                onBlur={e => (e.target.style.borderColor = '#e0e0e0')} />
             </div>
             <div>
               <label style={labelStyle}>Message</label>
-              <textarea
-                required rows={5} placeholder="Tell me about your project..."
-                value={form.message}
+              <textarea required rows={5} placeholder="Tell me about your project..." value={form.message}
                 onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                 style={{ ...inputStyle, resize: 'vertical' }}
                 onFocus={e => (e.target.style.borderColor = 'var(--color-foreground)')}
-                onBlur={e => (e.target.style.borderColor = '#e0e0e0')}
-              />
+                onBlur={e => (e.target.style.borderColor = '#e0e0e0')} />
             </div>
-            <button
-              type="submit"
-              style={{
-                alignSelf: 'flex-start', padding: '16px 40px',
-                background: 'var(--color-foreground)', color: 'var(--color-background)',
-                border: 'none', fontSize: 13, fontWeight: 600,
-                letterSpacing: '0.12em', textTransform: 'uppercase',
-                borderRadius: 'var(--radius-xs)', transition: 'opacity 0.2s',
-              }}
+            <button type="submit" style={{
+              alignSelf: 'flex-start', padding: '16px 40px',
+              background: 'var(--color-foreground)', color: 'var(--color-background)',
+              border: 'none', fontSize: 13, fontWeight: 600,
+              letterSpacing: '0.12em', textTransform: 'uppercase',
+              borderRadius: 'var(--radius-xs)', transition: 'opacity 0.2s',
+            }}
               onMouseEnter={e => (e.currentTarget.style.opacity = '0.75')}
-              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-            >
+              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}>
               Send
             </button>
           </form>
@@ -554,42 +312,22 @@ export default function Home() {
       </section>
 
       {/* ── Footer ──────────────────────────────────────────── */}
-      <footer
-        className="footer-inner"
-        style={{
-          borderTop: '1px solid var(--color-border)',
-          padding: '40px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          flexWrap: 'wrap', gap: 16,
-          fontSize: 13, color: 'var(--color-neutral-4)',
-        }}
-      >
-        <span style={{
-          fontFamily: "'Roboto Condensed', sans-serif",
-          fontWeight: 900, letterSpacing: '0.12em',
-          textTransform: 'uppercase', color: 'var(--color-foreground)', fontSize: 13,
-        }}>
+      <footer className="footer-inner" style={{
+        borderTop: '1px solid var(--color-border)', padding: '40px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        flexWrap: 'wrap', gap: 16, fontSize: 13, color: 'var(--color-neutral-4)',
+      }}>
+        <span style={{ fontFamily: "'Roboto Condensed', sans-serif", fontWeight: 900, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-foreground)', fontSize: 13 }}>
           Safia Touray
         </span>
         <span>© {new Date().getFullYear()} — All rights reserved</span>
         <div className="footer-links" style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
-          <a
-            href="mailto:Safleahfilm@outlook.com"
-            style={{
-              fontSize: 13, letterSpacing: '0.06em',
-              color: 'var(--color-neutral-4)', transition: 'color 0.15s',
-            }}
+          <a href="mailto:Safleahfilm@outlook.com" style={{ fontSize: 13, letterSpacing: '0.06em', color: 'var(--color-neutral-4)', transition: 'color 0.15s' }}
             onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-foreground)')}
-            onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-neutral-4)')}
-          >
+            onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-neutral-4)')}>
             Safleahfilm@outlook.com
           </a>
-          <a
-            href="https://www.instagram.com/safia.touray/"
-            target="_blank" rel="noreferrer"
-            className="ig-btn"
-            style={{ fontSize: 11, padding: '6px 14px' }}
-          >
+          <a href="https://www.instagram.com/safia.touray/" target="_blank" rel="noreferrer" className="ig-btn" style={{ fontSize: 11, padding: '6px 14px' }}>
             ↗ Instagram
           </a>
         </div>
