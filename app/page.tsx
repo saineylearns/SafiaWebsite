@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { SERIES } from './work/seriesData';
 
 export default function Home() {
   const [showreel, setShowreel] = useState(false);
@@ -76,16 +77,24 @@ export default function Home() {
           ))}
         </nav>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <button
             onClick={() => setShowreel(true)}
             className="ig-btn"
-            style={{ fontSize: 11, padding: '6px 14px', background: 'none' }}
+            style={{ fontSize: 11, padding: '6px 14px', background: 'none', display: 'inline-flex', alignItems: 'center', gap: 7 }}
           >
-            ▶ Showreel
+            <svg width="11" height="13" viewBox="0 0 11 13" fill="currentColor">
+              <path d="M0.5 1.5L10.5 6.5L0.5 11.5V1.5Z" />
+            </svg>
+            <span className="btn-label">Showreel</span>
           </button>
-          <a href="https://www.instagram.com/safia.touray/" target="_blank" rel="noreferrer" className="ig-btn">
-            ↗ Instagram
+          <a href="https://www.instagram.com/safia.touray/" target="_blank" rel="noreferrer" className="ig-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+              <circle cx="12" cy="12" r="4"/>
+              <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/>
+            </svg>
+            <span className="btn-label">Instagram</span>
           </a>
         </div>
       </header>
@@ -108,6 +117,34 @@ export default function Home() {
             style={{ objectFit: 'cover', objectPosition: 'center 20%' }}
             priority
           />
+        </div>
+      </section>
+
+      {/* ── Selected Work ───────────────────────────────────── */}
+      <section style={{ padding: '60px 40px 0' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 24 }}>
+          <p style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--color-neutral-5)', fontWeight: 500 }}>Selected Work</p>
+          <Link href="/work" style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 700, color: 'var(--color-neutral-4)', transition: 'color 0.15s' }}
+            onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-foreground)')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-neutral-4)')}>
+            View All →
+          </Link>
+        </div>
+        <div className="series-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+          {SERIES.map(series => (
+            <Link key={series.id} href={`/work/${series.id}`} style={{ display: 'block', textDecoration: 'none' }} className="series-card">
+              <div style={{ position: 'relative', aspectRatio: '2 / 3', overflow: 'hidden', background: '#f5f5f5' }}>
+                <Image
+                  src={series.cover}
+                  alt=""
+                  fill
+                  sizes="(max-width: 640px) 33vw, 20vw"
+                  style={{ objectFit: 'cover', transition: 'transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94)' }}
+                  className="series-cover-img"
+                />
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
 
