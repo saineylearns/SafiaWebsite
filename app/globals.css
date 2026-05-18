@@ -56,6 +56,9 @@ img { display: block; width: 100%; height: 100%; object-fit: cover; }
 }
 .ig-btn:hover { background: #000; color: #fff; }
 
+/* ── Series card hover ──────────────────────────────────────────── */
+.series-card:hover .series-cover-img { transform: scale(1.04); }
+
 /* ── Responsive ─────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .header-inner { padding: 0 20px !important; }
@@ -85,6 +88,9 @@ img { display: block; width: 100%; height: 100%; object-fit: cover; }
     gap: 14px !important;
   }
   .footer-links { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+
+  .series-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 16px !important; padding: 0 20px 60px !important; }
+  .series-detail-grid { grid-template-columns: 1fr !important; padding: 0 20px 60px !important; }
 }
 
 @media (max-width: 480px) {

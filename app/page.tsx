@@ -158,15 +158,26 @@ export default function Home() {
       </section>
 
       {/* ── Featured image ──────────────────────────────────── */}
-      <section style={{ width: '100%', height: '80vh', position: 'relative' }}>
-        <Image
-          src="/images/series-1/01.jpg"
-          alt=""
-          fill
-          sizes="100vw"
-          style={{ objectFit: 'cover', objectPosition: 'center 20%' }}
-          priority
-        />
+      <section style={{ padding: '0 40px 0', display: 'flex', justifyContent: 'center' }}>
+        <div style={{
+          position: 'relative',
+          width: '100%',
+          maxWidth: 560,
+          aspectRatio: '2 / 3',
+          border: '16px solid #fff',
+          boxShadow: '0 2px 24px rgba(0,0,0,0.10)',
+          background: '#f5f5f5',
+          overflow: 'hidden',
+        }}>
+          <Image
+            src="/images/series-1/01.jpg"
+            alt=""
+            fill
+            sizes="(max-width: 640px) 100vw, 560px"
+            style={{ objectFit: 'cover', objectPosition: 'center 20%' }}
+            priority
+          />
+        </div>
       </section>
 
       {/* ── Scrolling marquee ───────────────────────────────── */}
