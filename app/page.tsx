@@ -60,44 +60,55 @@ function Lightbox({ index, onClose, onPrev, onNext }: {
       onTouchEnd={e => {
         if (touchStartX.current === null) return;
         const dx = e.changedTouches[0].clientX - touchStartX.current;
+        if (Math.abs(dx) < 10) { onClose(); return; }
         if (dx < -60) onNext();
         if (dx > 60) onPrev();
         touchStartX.current = null;
       }}
     >
+      {/* close — large tap target */}
       <button
-        onClick={onClose}
+        onClick={e => { e.stopPropagation(); onClose(); }}
+        onTouchEnd={e => { e.stopPropagation(); e.preventDefault(); onClose(); }}
         style={{
-          position: 'absolute', top: 20, right: 24,
+          position: 'absolute', top: 0, right: 0,
+          width: 64, height: 64,
           background: 'none', border: 'none', cursor: 'pointer',
-          color: '#fff', fontSize: 28, lineHeight: 1, padding: '8px 12px',
-          opacity: 0.7, transition: 'opacity 0.15s',
-          fontFamily: 'var(--font-sans)',
+          color: '#fff', fontSize: 28, lineHeight: 1,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          opacity: 0.8, transition: 'opacity 0.15s',
+          WebkitTapHighlightColor: 'transparent',
+          zIndex: 10,
         }}
         onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
-        onMouseLeave={e => (e.currentTarget.style.opacity = '0.7')}
+        onMouseLeave={e => (e.currentTarget.style.opacity = '0.8')}
         aria-label="Close"
       >
         ×
       </button>
 
+      {/* counter */}
       <span style={{
-        position: 'absolute', top: 28, left: 24,
+        position: 'absolute', top: 22, left: 20,
         color: 'rgba(255,255,255,0.45)',
         fontSize: 12, letterSpacing: '0.15em',
         fontFamily: 'var(--font-sans)', fontWeight: 500,
+        pointerEvents: 'none',
       }}>
         {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
       </span>
 
+      {/* prev */}
       <button
         onClick={e => { e.stopPropagation(); onPrev(); }}
         style={{
-          position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)',
+          position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)',
           background: 'none', border: 'none', cursor: 'pointer',
-          color: '#fff', fontSize: 22, padding: '16px 12px',
+          color: '#fff', fontSize: 22,
+          width: 56, height: 80,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
           opacity: 0.5, transition: 'opacity 0.15s',
-          fontFamily: 'var(--font-sans)',
+          WebkitTapHighlightColor: 'transparent',
         }}
         onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
         onMouseLeave={e => (e.currentTarget.style.opacity = '0.5')}
@@ -106,14 +117,17 @@ function Lightbox({ index, onClose, onPrev, onNext }: {
         ←
       </button>
 
+      {/* next */}
       <button
         onClick={e => { e.stopPropagation(); onNext(); }}
         style={{
-          position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)',
+          position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)',
           background: 'none', border: 'none', cursor: 'pointer',
-          color: '#fff', fontSize: 22, padding: '16px 12px',
+          color: '#fff', fontSize: 22,
+          width: 56, height: 80,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
           opacity: 0.5, transition: 'opacity 0.15s',
-          fontFamily: 'var(--font-sans)',
+          WebkitTapHighlightColor: 'transparent',
         }}
         onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
         onMouseLeave={e => (e.currentTarget.style.opacity = '0.5')}
@@ -122,9 +136,11 @@ function Lightbox({ index, onClose, onPrev, onNext }: {
         →
       </button>
 
+      {/* image */}
       <div
         style={{ position: 'relative', maxWidth: '90vw', maxHeight: '90vh', width: '100%', height: '100%' }}
         onClick={e => e.stopPropagation()}
+        onTouchEnd={e => e.stopPropagation()}
       >
         <Image
           key={ALL_SRCS[index]}
@@ -141,14 +157,16 @@ function Lightbox({ index, onClose, onPrev, onNext }: {
 }
 
 /* ─── grid image cell ─────────────────────────────────────────────── */
-function ImgCell({ src, style, onClick }: {
+function ImgCell({ src, style, className, onClick }: {
   src: string;
   style: React.CSSProperties;
+  className?: string;
   onClick: () => void;
 }) {
   const [hovered, setHovered] = useState(false);
   return (
     <div
+      className={className}
       style={{ ...style, overflow: 'hidden', cursor: 'crosshair', position: 'relative' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -158,7 +176,7 @@ function ImgCell({ src, style, onClick }: {
         src={src}
         alt=""
         fill
-        sizes="(max-width: 768px) 100vw, 33vw"
+        sizes="(max-width: 640px) 50vw, (max-width: 768px) 50vw, 33vw"
         style={{
           objectFit: 'cover',
           transition: 'transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94)',
@@ -175,6 +193,7 @@ export default function Home() {
   const [scrolled, setScrolled] = useState(false);
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', message: '' });
   const [sent, setSent] = useState(false);
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -236,6 +255,7 @@ export default function Home() {
           white-space: nowrap;
         }
         .ig-btn:hover { background: #000; color: #fff; }
+
       `}</style>
 
       {lightbox !== null && (
@@ -243,27 +263,28 @@ export default function Home() {
       )}
 
       {/* ── Header ──────────────────────────────────────────── */}
-      <header style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        background: scrolled ? 'rgba(255,255,255,0.95)' : '#fff',
-        backdropFilter: scrolled ? 'blur(12px)' : 'none',
-        borderBottom: '1px solid var(--color-border)',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 40px', height: 'var(--header-height)',
-        transition: 'background 0.3s ease, backdrop-filter 0.3s ease',
-      }}>
+      <header
+        className="header-inner"
+        style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+          background: scrolled ? 'rgba(255,255,255,0.95)' : '#fff',
+          backdropFilter: scrolled ? 'blur(12px)' : 'none',
+          borderBottom: '1px solid var(--color-border)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 40px', height: 'var(--header-height)',
+          transition: 'background 0.3s ease, backdrop-filter 0.3s ease',
+        }}
+      >
         <a href="#" style={{
-          fontSize: 16,
-          fontWeight: 900,
-          letterSpacing: '0.14em',
-          textTransform: 'uppercase',
+          fontSize: 16, fontWeight: 900,
+          letterSpacing: '0.14em', textTransform: 'uppercase',
           fontFamily: "'Roboto Condensed', sans-serif",
           color: 'var(--color-foreground)',
         }}>
           Safia Touray
         </a>
 
-        <nav style={{ display: 'flex', gap: 40 }}>
+        <nav className="header-nav" style={{ display: 'flex', gap: 40 }}>
           {NAV_LINKS.map(link => (
             <a
               key={link}
@@ -272,8 +293,7 @@ export default function Home() {
               style={{
                 fontSize: 13, fontWeight: 500,
                 letterSpacing: '0.08em', textTransform: 'uppercase',
-                color: 'var(--color-neutral-4)',
-                transition: 'color 0.15s',
+                color: 'var(--color-neutral-4)', transition: 'color 0.15s',
               }}
               onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-foreground)')}
               onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-neutral-4)')}
@@ -294,17 +314,21 @@ export default function Home() {
 
       {/* ── Hero grid ───────────────────────────────────────── */}
       <section id="work" style={{ marginTop: 'var(--header-height)' }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gridTemplateRows: 'repeat(5, 340px)',
-          gap: 8,
-        }}>
+        <div
+          className="hero-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridTemplateRows: 'repeat(5, 340px)',
+            gap: 8,
+          }}
+        >
           {GRID_IMAGES.map((img, i) => (
             <ImgCell
               key={i}
               src={img.src}
               onClick={() => openLightbox(i)}
+              className={img.colSpan === 3 ? 'hero-cell hero-cell-wide' : 'hero-cell'}
               style={{
                 gridColumn: `${img.col} / span ${img.colSpan}`,
                 gridRow: `${img.row} / span ${img.rowSpan}`,
@@ -358,8 +382,8 @@ export default function Home() {
       </section>
 
       {/* ── About ───────────────────────────────────────────── */}
-      <section id="about" style={{ padding: '107px 40px', maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 84, alignItems: 'start' }}>
+      <section id="about" className="about-section" style={{ padding: '107px 40px', maxWidth: 1200, margin: '0 auto' }}>
+        <div className="about-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 84, alignItems: 'start' }}>
           <div>
             <h2 style={{
               fontSize: 33, fontWeight: 900, letterSpacing: '6px',
@@ -376,13 +400,11 @@ export default function Home() {
             </p>
           </div>
 
-          <div style={{ paddingTop: 36 }}>
-            {/* availability tag */}
+          <div className="about-grid-right" style={{ paddingTop: 36 }}>
             <div style={{ marginBottom: 40, display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{
                 display: 'inline-block', width: 8, height: 8, borderRadius: '50%',
-                background: '#22c55e',
-                boxShadow: '0 0 0 3px rgba(34,197,94,0.22)',
+                background: '#22c55e', boxShadow: '0 0 0 3px rgba(34,197,94,0.22)',
               }} />
               <span style={{
                 fontSize: 12, fontWeight: 700, letterSpacing: '0.18em',
@@ -421,7 +443,7 @@ export default function Home() {
       </section>
 
       {/* ── Manifesto ───────────────────────────────────────── */}
-      <section style={{
+      <section className="manifesto-section" style={{
         background: '#0a0a0a',
         padding: '100px 40px',
         textAlign: 'center',
@@ -451,7 +473,7 @@ export default function Home() {
       </section>
 
       {/* ── Contact ─────────────────────────────────────────── */}
-      <section id="contact" style={{ padding: '107px 40px', maxWidth: 800, margin: '0 auto' }}>
+      <section id="contact" className="contact-section" style={{ padding: '107px 40px', maxWidth: 800, margin: '0 auto' }}>
         <h2 style={{
           fontSize: 33, fontWeight: 900, letterSpacing: '6px',
           textTransform: 'uppercase', marginBottom: 16,
@@ -467,7 +489,7 @@ export default function Home() {
           <p style={{ fontSize: 18, fontWeight: 500 }}>{"Message sent — I'll be in touch soon."}</p>
         ) : (
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div className="contact-name-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div>
                 <label style={labelStyle}>First name</label>
                 <input
@@ -532,13 +554,16 @@ export default function Home() {
       </section>
 
       {/* ── Footer ──────────────────────────────────────────── */}
-      <footer style={{
-        borderTop: '1px solid var(--color-border)',
-        padding: '40px',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        flexWrap: 'wrap', gap: 16,
-        fontSize: 13, color: 'var(--color-neutral-4)',
-      }}>
+      <footer
+        className="footer-inner"
+        style={{
+          borderTop: '1px solid var(--color-border)',
+          padding: '40px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          flexWrap: 'wrap', gap: 16,
+          fontSize: 13, color: 'var(--color-neutral-4)',
+        }}
+      >
         <span style={{
           fontFamily: "'Roboto Condensed', sans-serif",
           fontWeight: 900, letterSpacing: '0.12em',
@@ -547,7 +572,7 @@ export default function Home() {
           Safia Touray
         </span>
         <span>© {new Date().getFullYear()} — All rights reserved</span>
-        <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+        <div className="footer-links" style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
           <a
             href="mailto:Safleahfilm@outlook.com"
             style={{
