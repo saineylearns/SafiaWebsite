@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { SERIES } from './work/seriesData';
 
 export default function Home() {
   const [showreel, setShowreel] = useState(false);
@@ -117,34 +116,6 @@ export default function Home() {
             style={{ objectFit: 'cover', objectPosition: 'center 20%' }}
             priority
           />
-        </div>
-      </section>
-
-      {/* ── Selected Work ───────────────────────────────────── */}
-      <section style={{ padding: '60px 40px 0' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 24 }}>
-          <p style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--color-neutral-5)', fontWeight: 500 }}>Selected Work</p>
-          <Link href="/work" style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 700, color: 'var(--color-neutral-4)', transition: 'color 0.15s' }}
-            onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-foreground)')}
-            onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-neutral-4)')}>
-            View All →
-          </Link>
-        </div>
-        <div className="series-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-          {SERIES.map(series => (
-            <Link key={series.id} href={`/work/${series.id}`} style={{ display: 'block', textDecoration: 'none' }} className="series-card">
-              <div style={{ position: 'relative', aspectRatio: '2 / 3', overflow: 'hidden', background: '#f5f5f5' }}>
-                <Image
-                  src={series.cover}
-                  alt=""
-                  fill
-                  sizes="(max-width: 640px) 33vw, 20vw"
-                  style={{ objectFit: 'cover', transition: 'transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94)' }}
-                  className="series-cover-img"
-                />
-              </div>
-            </Link>
-          ))}
         </div>
       </section>
 
