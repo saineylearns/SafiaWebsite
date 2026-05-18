@@ -5,8 +5,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { SERIES } from './seriesData';
 
-const MARQUEE_WORDS = ['Portrait', 'Editorial', 'Documentary'];
-
 export default function Work() {
   const [scrolled, setScrolled] = useState(false);
 
@@ -67,7 +65,7 @@ export default function Work() {
       }}>
         {SERIES.map(series => (
           <Link key={series.id} href={`/work/${series.id}`} style={{ display: 'block', textDecoration: 'none' }} className="series-card">
-            <div style={{ position: 'relative', aspectRatio: '2 / 3', overflow: 'hidden', background: '#f5f5f5', border: '10px solid #fff', boxShadow: '0 1px 8px rgba(0,0,0,0.08)' }}>
+            <div style={{ position: 'relative', aspectRatio: '2 / 3', overflow: 'hidden', background: '#f5f5f5' }}>
               <Image
                 src={series.cover}
                 alt=""
@@ -77,37 +75,9 @@ export default function Work() {
                 className="series-cover-img"
               />
             </div>
-            <div style={{ paddingTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--color-neutral-4)' }}>
-                Series {series.label}
-              </span>
-              <span style={{ fontSize: 11, color: 'var(--color-neutral-5)', letterSpacing: '0.1em' }}>
-                {series.images.length} images →
-              </span>
-            </div>
           </Link>
         ))}
       </div>
-
-      {/* ── Marquee ─────────────────────────────────────────── */}
-      <section style={{ background: '#0a0a0a', overflow: 'hidden', padding: '28px 0', userSelect: 'none' }}>
-        <div style={{ display: 'inline-block', whiteSpace: 'nowrap', animation: 'marquee 45s linear infinite' }}>
-          {[0, 1].map(n => (
-            <span key={n} style={{ fontFamily: "'Roboto Condensed', sans-serif" }}>
-              {Array.from({ length: 6 }).map((_, i) => (
-                <span key={i}>
-                  {MARQUEE_WORDS.map((word, j) => (
-                    <span key={j}>
-                      <span style={{ fontWeight: 900, fontSize: 'clamp(22px, 3vw, 36px)', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#fff' }}>{word}</span>
-                      <span style={{ fontWeight: 900, fontSize: 'clamp(22px, 3vw, 36px)', color: '#c9924a', margin: '0 0.45em' }}>·</span>
-                    </span>
-                  ))}
-                </span>
-              ))}
-            </span>
-          ))}
-        </div>
-      </section>
 
       {/* ── Footer ──────────────────────────────────────────── */}
       <footer className="footer-inner" style={{ borderTop: '1px solid var(--color-border)', padding: '40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, fontSize: 13, color: 'var(--color-neutral-4)' }}>

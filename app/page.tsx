@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-const MARQUEE_WORDS = ['Portrait', 'Editorial', 'Documentary'];
-
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
   const [showreel, setShowreel] = useState(false);
@@ -193,8 +191,6 @@ export default function Home() {
           width: '100%',
           maxWidth: 560,
           aspectRatio: '2 / 3',
-          border: '16px solid #fff',
-          boxShadow: '0 2px 24px rgba(0,0,0,0.10)',
           background: '#f5f5f5',
           overflow: 'hidden',
         }}>
@@ -206,26 +202,6 @@ export default function Home() {
             style={{ objectFit: 'cover', objectPosition: 'center 20%' }}
             priority
           />
-        </div>
-      </section>
-
-      {/* ── Scrolling marquee ───────────────────────────────── */}
-      <section style={{ background: '#0a0a0a', overflow: 'hidden', padding: '28px 0', userSelect: 'none' }}>
-        <div style={{ display: 'inline-block', whiteSpace: 'nowrap', animation: 'marquee 45s linear infinite' }}>
-          {[0, 1].map(n => (
-            <span key={n} style={{ fontFamily: "'Roboto Condensed', sans-serif" }}>
-              {Array.from({ length: 6 }).map((_, i) => (
-                <span key={i}>
-                  {MARQUEE_WORDS.map((word, j) => (
-                    <span key={j}>
-                      <span style={{ fontWeight: 900, fontSize: 'clamp(22px, 3vw, 36px)', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#fff' }}>{word}</span>
-                      <span style={{ fontWeight: 900, fontSize: 'clamp(22px, 3vw, 36px)', color: '#c9924a', margin: '0 0.45em' }}>·</span>
-                    </span>
-                  ))}
-                </span>
-              ))}
-            </span>
-          ))}
         </div>
       </section>
 
