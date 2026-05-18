@@ -8,6 +8,7 @@ const MARQUEE_WORDS = ['Portrait', 'Editorial', 'Documentary'];
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
+  const [showreel, setShowreel] = useState(false);
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', message: '' });
   const [sent, setSent] = useState(false);
 
@@ -15,6 +16,17 @@ export default function Home() {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = showreel ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [showreel]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowreel(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, []);
 
   function handleSubmit(e: React.FormEvent) {
@@ -151,9 +163,26 @@ export default function Home() {
               Available for projects
             </span>
           </div>
-          <Link href="/work" className="work-cta">
-            View Work →
-          </Link>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
+            <button
+              onClick={() => setShowreel(true)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 10,
+                fontSize: 13, fontWeight: 700, letterSpacing: '0.12em',
+                textTransform: 'uppercase', color: 'var(--color-foreground)',
+                background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+                borderBottom: '1.5px solid currentColor', paddingBottom: 2,
+                transition: 'opacity 0.2s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.opacity = '0.5')}
+              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+            >
+              ▶ Showreel
+            </button>
+            <Link href="/work" className="work-cta">
+              View Work →
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -343,6 +372,46 @@ export default function Home() {
           </a>
         </div>
       </footer>
+
+      {/* ── Showreel modal ──────────────────────────────────── */}
+      {showreel && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 999,
+            background: 'rgba(0,0,0,0.96)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            animation: 'fadeIn 0.25s ease',
+          }}
+          onClick={() => setShowreel(false)}
+        >
+          <div
+            style={{ width: '90vw', maxWidth: 960, position: 'relative' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <video
+              src="/showreel.mp4"
+              controls
+              autoPlay
+              style={{ width: '100%', display: 'block', borderRadius: 2 }}
+            />
+          </div>
+
+          {/* close */}
+          <button
+            style={{
+              position: 'fixed', top: 20, right: 20,
+              width: 64, height: 64,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
+              borderRadius: '50%', color: '#fff', fontSize: 22, cursor: 'pointer',
+            }}
+            onClick={() => setShowreel(false)}
+            onTouchEnd={e => { e.preventDefault(); setShowreel(false); }}
+          >
+            ×
+          </button>
+        </div>
+      )}
     </>
   );
 }
