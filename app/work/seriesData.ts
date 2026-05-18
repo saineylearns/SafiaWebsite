@@ -31,6 +31,25 @@ export const SERIES = [
       '/images/series-3/04.jpg',
     ],
   },
+  {
+    id: 'series-4',
+    label: '04',
+    cover: '/images/series-4/01.jpg',
+    images: [
+      '/images/series-4/01.jpg',
+      '/images/series-4/02.jpg',
+    ],
+  },
+  {
+    id: 'series-5',
+    label: '05',
+    cover: '/images/series-5/01.jpg',
+    images: [
+      '/images/series-5/01.jpg',
+      '/images/series-5/02.jpg',
+      '/images/series-5/03.jpg',
+    ],
+  },
 ] as const;
 
 export type SeriesId = (typeof SERIES)[number]['id'];

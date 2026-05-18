@@ -1,16 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { SERIES } from '../seriesData';
 import { notFound } from 'next/navigation';
 
-export default function SeriesPage({ params }: { params: { series: string } }) {
+export default function SeriesPage({ params }: { params: Promise<{ series: string }> }) {
+  const { series: seriesId } = use(params);
   const [scrolled, setScrolled] = useState(false);
   const [lightbox, setLightbox] = useState<number | null>(null);
 
-  const series = SERIES.find(s => s.id === params.series);
+  const series = SERIES.find(s => s.id === seriesId);
   if (!series) notFound();
 
   useEffect(() => {
