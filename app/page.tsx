@@ -77,6 +77,13 @@ export default function Home() {
         </nav>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <Link href="/work" style={{
+            fontSize: 13, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
+            color: 'var(--color-foreground)', paddingBottom: 1,
+            borderBottom: '1.5px solid var(--color-foreground)',
+          }}>
+            Work
+          </Link>
           <button
             onClick={() => setShowreel(true)}
             className="ig-btn"
